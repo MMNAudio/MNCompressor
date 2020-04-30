@@ -193,6 +193,14 @@ void MncompressorAudioProcessor::setStateInformation (const void* data, int size
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
+
+    if (tree.isValid())
+    {
+        treeState.state = tree;
+    }
+
+
 }
 
 //==============================================================================

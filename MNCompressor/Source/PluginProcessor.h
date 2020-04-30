@@ -13,6 +13,17 @@
 #include <JuceHeader.h>
 #include "MNCompressor.h"
 
+#define THRESH_ID "threshold"
+#define THRESH_NAME "Threshold"
+#define RATIO_ID "ratio"
+#define RATIO_NAME "Ratio"
+#define KNEE_ID "knee"
+#define KNEE_NAME "Knee"
+#define ATTACK_ID "attack"
+#define ATTACK_NAME "Attack"
+#define RELEASE_ID "release"
+#define RELEASE_NAME "Release"
+
 //==============================================================================
 /**
 */
@@ -57,6 +68,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+    Array<MNCompressor> allCompressors;
+    AudioProcessorValueTreeState treeState;
+    AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MncompressorAudioProcessor)
 };

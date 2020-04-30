@@ -22,12 +22,38 @@ MncompressorAudioProcessor::MncompressorAudioProcessor()
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
                        )
+    , treeState(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
+    treeState.state = ValueTree(THRESH_ID);
+    treeState.state = ValueTree(RATIO_ID);
+    treeState.state = ValueTree(KNEE_ID);
+    treeState.state = ValueTree(ATTACK_ID);
+    treeState.state = ValueTree(RELEASE_ID);
 }
 
 MncompressorAudioProcessor::~MncompressorAudioProcessor()
 {
+}
+
+//** Initialise paramaters **//
+AudioProcessorValueTreeState::ParameterLayout MncompressorAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<RangedAudioParameter>> params;
+
+    auto threshParam = std::make_unique<AudioParameterFloat>(THRESH_ID, THRESH_NAME, NormalisableRange<float>(-60.0f, 20.0f, 0.01f), 10.0f);
+    auto ratioParam = std::make_unique<AudioParameterFloat>(RATIO_ID, RATIO_NAME, NormalisableRange<float>(1.0f, 20.0f, 0.01f), 2.0f);
+    auto kneeParam = std::make_unique<AudioParameterFloat>(KNEE_ID, KNEE_NAME, NormalisableRange<float>(0.0f, 24.0f, 0.01f), 0.0f);
+    auto attackParam = std::make_unique<AudioParameterFloat>(ATTACK_ID, ATTACK_NAME, NormalisableRange<float>(0.01f, 500.0f, 0.01f), 100.0f);
+    auto releaseParam = std::make_unique<AudioParameterFloat>(RELEASE_ID, RELEASE_NAME, NormalisableRange<float>(0.01f, 2000.0f, 0.01f), 500.0f);
+
+    params.push_back(std::move(threshParam));
+    params.push_back(std::move(ratioParam));
+    params.push_back(std::move(kneeParam));
+    params.push_back(std::move(attackParam));
+    params.push_back(std::move(releaseParam));
+
+    return { params.begin(), params.end() };
 }
 
 //==============================================================================
@@ -95,8 +121,10 @@ void MncompressorAudioProcessor::changeProgramName (int index, const String& new
 //==============================================================================
 void MncompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    for (int channel = 0; channel < getNumOutputChannels(); channel++)
+    {
+        allCompressors.add(MNCompressor());
+    }
 }
 
 void MncompressorAudioProcessor::releaseResources()
@@ -131,30 +159,14 @@ bool MncompressorAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void MncompressorAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-    ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    for (int i = 0; i < buffer.getNumSamples(); i++)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
+        for (int channel = 0; channel < getTotalNumOutputChannels(); channel++)
+        {
+            auto* data = buffer.getWritePointer(channel);
+            MNCompressor* compressor = &allCompressors.getReference(channel);
+            data[i] = compressor->CompressSample(data[i], -30.0f, 20.0f, 0.01f, 0.4f, 0.0f);
+        }
     }
 }
 

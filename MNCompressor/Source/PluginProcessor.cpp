@@ -125,6 +125,13 @@ void MncompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     {
         allCompressors.add(MNCompressor());
     }
+
+    threshParam = *treeState.getRawParameterValue(THRESH_ID);
+    ratioParam = *treeState.getRawParameterValue(RATIO_ID);
+    kneeParam = *treeState.getRawParameterValue(KNEE_ID);
+    attackParam = *treeState.getRawParameterValue(ATTACK_ID);
+    releaseParam = *treeState.getRawParameterValue(RELEASE_ID);
+
 }
 
 void MncompressorAudioProcessor::releaseResources()
@@ -159,13 +166,24 @@ bool MncompressorAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void MncompressorAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    threshParam = *treeState.getRawParameterValue(THRESH_ID);
+    ratioParam = *treeState.getRawParameterValue(RATIO_ID);
+    kneeParam = *treeState.getRawParameterValue(KNEE_ID);
+    attackParam = *treeState.getRawParameterValue(ATTACK_ID);
+    releaseParam = *treeState.getRawParameterValue(RELEASE_ID);
+
+    float at = 1 - std::pow(MathConstants<float>::euler, ((1 / getSampleRate()) * -2.2f) / (attackParam / 1000.0f));
+    float rt = 1 - std::pow(MathConstants<float>::euler, ((1 / getSampleRate()) * -2.2f) / (releaseParam / 1000.0f));
+
+
+
     for (int i = 0; i < buffer.getNumSamples(); i++)
     {
         for (int channel = 0; channel < getTotalNumOutputChannels(); channel++)
         {
             auto* data = buffer.getWritePointer(channel);
             MNCompressor* compressor = &allCompressors.getReference(channel);
-            data[i] = compressor->CompressSample(data[i], -30.0f, 20.0f, 0.01f, 0.4f, 0.0f);
+            data[i] = compressor->CompressSample(data[i], threshParam, ratioParam, at, rt, kneeParam);
         }
     }
 }
@@ -187,17 +205,18 @@ void MncompressorAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    auto stateTree = treeState.copyState();
+    std::unique_ptr<XmlElement> xml(stateTree.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void MncompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-    ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
+    std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
-    if (tree.isValid())
+    if (xmlState.get() != nullptr && xmlState->hasTagName(treeState.state.getType()))
     {
-        treeState.state = tree;
+        treeState.replaceState(ValueTree::fromXml(*xmlState));
     }
 
 

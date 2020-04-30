@@ -70,8 +70,16 @@ public:
     AudioProcessorValueTreeState treeState;
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
+    float threshParam;
+    float ratioParam;
+    float kneeParam;
+    float attackParam;
+    float releaseParam;
+
 private:
     Array<MNCompressor> allCompressors;
+
+
    
 
     //==============================================================================

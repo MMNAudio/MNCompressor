@@ -22,7 +22,12 @@ MncompressorAudioProcessorEditor::MncompressorAudioProcessorEditor (Mncompressor
     addSlider(ATTACK_NAME, ATTACK_ID, ATTACK_NAME, attackSlider, attackLabel, attackAttachment);
     addSlider(RELEASE_NAME, RELEASE_ID, RELEASE_NAME, releaseSlider, releaseLabel, releaseAttachment);
 
-    setSize (400, 300);
+    threshSlider.setTextValueSuffix(" dB");
+    ratioSlider.setTextValueSuffix(" : 1");
+    attackSlider.setTextValueSuffix(" ms");
+    releaseSlider.setTextValueSuffix(" ms");
+
+    setSize (400, 600);
 }
 
 MncompressorAudioProcessorEditor::~MncompressorAudioProcessorEditor()
@@ -41,20 +46,20 @@ void MncompressorAudioProcessorEditor::paint (Graphics& g)
 
 void MncompressorAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-
-    threshSlider.setBounds(100, 0, 200, 50);
-    ratioSlider.setBounds(100, 50, 200, 50);
-    kneeSlider.setBounds(100, 100, 200, 50);
-    attackSlider.setBounds(100, 150, 200, 50);
-    releaseSlider.setBounds(100, 200, 200, 50);
+    threshSlider.setBounds((getWidth() / 2) - 25, 50, 100, 100);
+    ratioSlider.setBounds((getWidth() / 2) - 25, 150, 100, 100);
+    kneeSlider.setBounds((getWidth() / 2) - 25, 250, 100, 100);
+    attackSlider.setBounds((getWidth() / 2) - 25, 350, 100, 100);
+    releaseSlider.setBounds((getWidth() / 2) - 25, 450, 100, 100);
 }
 
 void MncompressorAudioProcessorEditor::addSlider(String _name, String _id, String _labelText, Slider& _slider, Label& _label, std::unique_ptr<SliderAttachment>& _attachment)
 {
+    addAndMakeVisible(_slider);
     _attachment = std::make_unique<SliderAttachment>(processor.treeState, _id, _slider);
     _label.setText(_labelText, dontSendNotification);
     _label.attachToComponent(&_slider, true);
-    addAndMakeVisible(_slider);
+    _slider.setSliderStyle(Slider::SliderStyle::Rotary);
+    _slider.setTextBoxStyle(Slider::TextBoxBelow, true, 70, 20);
+    _slider.setColour(Slider::textBoxOutlineColourId, Colour::Colour());
 }

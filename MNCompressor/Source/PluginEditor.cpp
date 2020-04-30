@@ -24,6 +24,7 @@ MncompressorAudioProcessorEditor::MncompressorAudioProcessorEditor (Mncompressor
 
     threshSlider.setTextValueSuffix(" dB");
     ratioSlider.setTextValueSuffix(" : 1");
+    kneeSlider.setTextValueSuffix(" dB");
     attackSlider.setTextValueSuffix(" ms");
     releaseSlider.setTextValueSuffix(" ms");
 

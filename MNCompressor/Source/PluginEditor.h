@@ -18,6 +18,28 @@ typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 //==============================================================================
 /**
 */
+
+class SliderLookAndFeel : public LookAndFeel_V4
+{
+public:
+    SliderLookAndFeel()
+    {
+        ColourGradient colour = ColourGradient(Colours::darkblue, 0.f, 0.f, Colours::aquamarine, 1.f, 1.f, true);
+        setColour(Slider::rotarySliderFillColourId, colour.getColour(0));
+        setColour(Slider::rotarySliderOutlineColourId, Colours::darkgrey);
+        setColour(Slider::thumbColourId, Colours::black);
+
+        
+    }
+
+    /*
+    void drawRotarySlider(Graphics &g, int _x, int _y, int _width, int _height, float _sliderPosProportional, float _rotaryStartAngle, float _rotaryEndAngle, Slider& _slider)
+    {
+
+    }
+    */
+};
+
 class MncompressorAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
@@ -33,6 +55,8 @@ private:
     // access the processor object that created it.
     MncompressorAudioProcessor& processor;
     //AudioProcessorValueTreeState& params;
+
+    SliderLookAndFeel sliderLookAndFeel;
 
     Slider threshSlider;
     Slider ratioSlider;
@@ -56,3 +80,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MncompressorAudioProcessorEditor)
 };
+
+

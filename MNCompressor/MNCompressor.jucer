@@ -2,6 +2,12 @@
 
 <JUCERPROJECT id="R6OiMJ" name="MNCompressor" projectType="audioplug" jucerVersion="5.4.7">
   <MAINGROUP id="VGRE5i" name="MNCompressor">
+    <GROUP id="{66F3B16C-9AC7-49C7-5DD4-BC966FEB4EF8}" name="Resources">
+      <FILE id="MLM08v" name="MNCompressorBckTwo.png" compile="0" resource="1"
+            file="MNCompressorBckTwo.png"/>
+      <FILE id="ISDsKK" name="MNCompressorBck.png" compile="0" resource="1"
+            file="MNCompressorBck.png"/>
+    </GROUP>
     <GROUP id="{A4DAAD18-2420-3985-800B-05F5AE8287D7}" name="Source">
       <FILE id="XW7TWd" name="MNCompressor.cpp" compile="1" resource="0"
             file="Source/MNCompressor.cpp"/>

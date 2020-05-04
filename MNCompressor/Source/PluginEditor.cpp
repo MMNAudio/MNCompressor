@@ -28,6 +28,14 @@ MncompressorAudioProcessorEditor::MncompressorAudioProcessorEditor (Mncompressor
     attackSlider.setTextValueSuffix(" ms");
     releaseSlider.setTextValueSuffix(" ms");
 
+    threshSlider.setLookAndFeel(&sliderLookAndFeel);
+    ratioSlider.setLookAndFeel(&sliderLookAndFeel);
+    kneeSlider.setLookAndFeel(&sliderLookAndFeel);
+    attackSlider.setLookAndFeel(&sliderLookAndFeel);
+    releaseSlider.setLookAndFeel(&sliderLookAndFeel);
+
+    //getLookAndFeel().setColour(Slider::thumbColourId, Colours::black);
+
     setSize (400, 600);
 }
 
@@ -39,7 +47,11 @@ MncompressorAudioProcessorEditor::~MncompressorAudioProcessorEditor()
 void MncompressorAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    //g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    //g.fillAll(Colours::black);
+
+    Image background = ImageCache::getFromMemory(BinaryData::MNCompressorBckTwo_png, BinaryData::MNCompressorBckTwo_pngSize);
+    g.drawImageAt(background, 0, 0);
 
     g.setColour (Colours::white);
     g.setFont (15.0f);
